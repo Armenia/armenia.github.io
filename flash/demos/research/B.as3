@@ -1,0 +1,2 @@
+var myURL:URLRequest = new URLRequest("C.html?please=dontremovemygetparameters");
+navigateToURL(myURL, "_self");

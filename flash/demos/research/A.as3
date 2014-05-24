@@ -1,0 +1,2 @@
+var myURL:URLRequest = new URLRequest("C.html#datapleasedontberemoved");
+navigateToURL(myURL, "_self");

@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=1024" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <title>Content Security Policy and XSS | Ruben Zakaryan</title>
+    
+    <meta name="description" content="This presentation is prepared for OWASP Armenia chapter meetup." />
+    <meta name="author" content="Ruben Zakaryan" />
+
+    <link href="http://fonts.googleapis.com/css?family=Open+Sans:regular,semibold,italic,italicsemibold|PT+Sans:400,700,400italic,700italic|PT+Serif:400,700,400italic,700italic" rel="stylesheet" />
+    <link href="css/impress-demo.css" rel="stylesheet" />
+    
+    <link rel="shortcut icon" href="favicon.png" />
+    <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+</head>
+
+<body class="impress-not-supported">
+<div class="fallback-message">
+    <p>Your browser <b>doesn't support the features required</b> by impress.js, so you are presented with a simplified version of this presentation.</p>
+    <p>For the best experience please use the latest <b>Chrome</b>, <b>Safari</b> or <b>Firefox</b> browser.</p>
+</div>
+
+<!--
+Starting here :)
+-->
+<div id="impress">
+    <div id="front" class="step slide front" data-x="0" data-y="0">
+        <img src="img/logo.png" title="OWASP Armenia" />
+        <h2 class="armsec">ARMSec Alpha 2014</h2>
+        <h1>'Huh, what sandbox?'</h1>
+        <p>Ruben Zakaryan</p>
+        
+    </div>
+
+    <div id="sandbox" class="step slide" data-x="600" data-y="200" data-z="500" data-rotate-y="-90">
+        <h1>What is the sandbox?<h1>
+        <h2>Browser sandbox</h2>
+        <ul>
+            <li>Isolating different windows/tabs/origins etc</li>
+            <li>Isolating plugins</li>
+            <li>Isolating local filesystem <a href='demos/demo1.html' target="_blank">Demo: Browser Sandbox</a></li>
+            <li>Isolating "iframe" contents: *Same file using "file:///"*</li>
+            <li>etc</li>
+        </ul>
+    </div>
+
+    <div id="sandbox-1" class="step slide" data-x="0" data-y="400" data-z="1000" data-rotate-y="-180">
+        <img src="http://www.google.com/googlebooks/chrome/images/med/26.jpg" />
+    </div>
+
+    <div id="sandbox-2" class="step slide" data-x="-600" data-y="600" data-z="500" data-rotate-y="-270">
+        <h1>Adobe Flash Player's Sandbox</h1>
+        <ul>
+            <li>Remote Sandboxes</li>
+            <li> 
+                Local Sandboxes
+                <blockquote>
+                    The local-with-filesystem sandbox—For security purposes, Flash Player places all local SWF files and assets in the local-with-file-system sandbox, by default. From this sandbox, SWF files can read local files (by using the URLLoader class, for example), but they cannot communicate with the network in any way. This assures the user that local data cannot be leaked out to the network or otherwise inappropriately shared.
+                </blockquote>
+            </li>
+    </div>
+
+    <div id="how-to-exploit" class="step slide" data-x="0" data-y="800" data-z="0" data-rotate-y="-360">
+        <h1>Various 0-days</h1>
+        <p>Usually exploits are using buffer overflow</p>
+        <ul>
+            <li><a href="http://helpx.adobe.com/en/security/products/flash-player/apsb14-09.html">Classic Adobe security bulletin</a></li>
+        </ul>
+    </div>
+
+    <div id="new-horizon" class="step slide" data-x="600" data-y="1000" data-z="500" data-rotate-y="-450">
+        <h2>New exploitation vector landscape:<h2>
+        <h1>Logic exploitation</h1>
+        <ul>
+            <li>No longer ASLR/DEP bypass needed</li>
+            <li>Using only consciously allowed features</li>
+        </ul>
+        
+        <ul class="notes">
+            <li>ASLR:  <a href="http://en.wikipedia.org/wiki/Address_space_layout_randomization">Address space layout randomization</a></li>
+            <li>DEP:  <a href="http://en.wikipedia.org/wiki/Data_Execution_Prevention">Data Execution Prevention</a></li>
+        </p>
+    </div>
+
+    <div id="cve-1" class="step slide" data-x="0" data-y="1200" data-z="1000" data-rotate-y="-540">
+        <h1>An example of logic exploitation</h1> 
+        <h2>CVE-2014-0508</h2>
+        <blockquote>
+            Adobe Flash Player before 11.7.700.275 and 11.8.x through 13.0.x before 13.0.0.182 on Windows and OS X and before 11.2.202.350 on Linux, Adobe AIR before 13.0.0.83 on Android, Adobe AIR SDK before 13.0.0.83, and Adobe AIR SDK & Compiler before 13.0.0.83 allow attackers to bypass intended access restrictions and obtain sensitive information <b class="red">via unspecified vectors</b>.
+        </blockquote>
+    </div>
+
+    <div id="cve-2" class="step slide" data-x="-600" data-y="1400" data-z="500" data-rotate-y="-630">
+        <h1>Anyone, free files!!</h1> 
+        <img src="img/tim-ellis.jpg" />
+    </div>
+
+    <div id="cve-3" class="step slide" data-x="0" data-y="1600" data-z="0" data-rotate-y="-720">
+        <h1>File URI</h1> 
+        <ul>
+            <li>Doesn't support POST requests</li>
+            <li>GET parameters are stripped <a href="demos/flash_get.html" target="_blank">DEMO: GET parameters in flash</a></li>
+        </ul>
+        <p> 
+    </div>
+
+    <div id="cve-4" class="step slide" data-x="600" data-y="1800" data-z="500" data-rotate-y="-810">
+        <h1>Putting things together</h1> 
+        <h2>When using local "file:///" protocol:</h2>
+        <ul>
+            <li>Adobe flash plugin has an access to local files, but any network communication is blocked</li>
+            <li>Extra "\"'s or "/"'s are omitted/ignored in browser navigation.</li>
+        </ul>
+        <p> 
+    </div>
+
+    <div id="break-out" class="step slide" data-x="0" data-y="2000" data-z="1000" data-rotate-y="-900">
+        <h1>Time to break out</h1> 
+        <img src="img/break-out.jpg" />
+    </div>
+
+    <div id="cve-5" class="step slide" data-x="-600" data-y="2200" data-z="500" data-rotate-y="-990">
+        <h1>The exploit</h1> 
+
+        <ul>
+            <li><a target="_blank" href="demos/fileproxy.html">fileproxy.swf</a></li>
+            <li><a target="_blank" href="demos/wingman.html">wingman.html</a></li>
+            <li><a target="_blank" href="demos/sandbox.html">sandbox.html</a></li>
+            <li><a target="_blank" href="demos/poc.html">poc.html</a></li>
+        </ul>
+    </div>
+
+    <div id="cve-6" class="step slide" data-x="0" data-y="2400" data-z="0" data-rotate-y="-1080">
+        <h1>Packing into one file</h1> 
+        <ul>
+            <li><a target="_blank" href="demos/fullPoc.html">One file</a></li>
+        </ul>
+    </div>
+
+    <div id="cve-7" class="step slide" data-x="600" data-y="2600" data-z="500" data-rotate-y="-1170">
+        <h1>Demonstration Video</h1> 
+        <div class="video">
+            <div class="responsive-video-container"><iframe src="http://www.youtube.com/embed/a_h9BTUElG8/?modestbranding=1&amp;rel=0&amp;title=&amp;autohide=1&amp;showinfo=0&amp;wmode=transparent" frameborder="0" allowfullscreen=""></iframe></div>
+        </div>
+    </div>
+
+    <div id="cve-8" class="step slide" data-x="0" data-y="2800" data-z="1000" data-rotate-y="-1260">
+        <h1 class="center">Live Demonstration</h1> 
+    </div>
+
+    <div id="above-and-beyond" class="step slide" data-x="-600" data-y="3000" data-z="500" data-rotate-y="-1350">
+        <h1 class="center">Above and beyond</h1> 
+        <ul>
+            <li>Reading remote files with &lt;a href='url' download='somefile' /&gt;, force download with getElem..Id.click(); since the file is now LOCAL this exploit that can read _local_ files, so can also read your email</li>
+            <li>Bypassing swf download</li>
+            <li>Bypassing url filtration</li>
+            <li>Sandbox escaping</li>
+        </ul>
+    </div>
+
+    <div id="summary" class="step slide" data-x="0" data-y="3200" data-z="0" data-rotate-y="-1440">
+        <h1 class="center">Summary</h1> 
+        <ul>
+            <li>Developers must check their code not only for common attack vectors</li>
+            <li>Browser plugin (java, flash, etc) sandboxes can be incompatible with browsers own sandbox</li>
+        </ul>
+    </div>
+
+    <div id="references" class="step slide" data-x="600" data-y="3400" data-z="500" data-rotate-y="-1530">
+        <h1 class="center">Home reading</h1> 
+        <ul>
+           <li><a href="http://seclab.stanford.edu/websec/chromium/chromium-security-architecture.pdf">Chromium Security architecture</a>
+           <li><a href="http://www.chromium.org/developers/design-documents/sandbox">Chromium Projects: Sandbox design document</a>
+           <li><a href="http://www.google.com/googlebooks/chrome/med_26.html">A comix</a>
+           <li><a href="http://en.wikipedia.org/wiki/Address_space_layout_randomization">Wiki: ASLR</a>
+           <li><a href="http://en.wikipedia.org/wiki/Data_Execution_Prevention">Wiki: DEP</a>
+           <li><a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2014-0508">CVE-2014-0508</a>
+           <li><a href="http://ha.ckers.org/xsscalc.html">XSS calc</a>
+           <li><a href="http://ha.ckers.org/xsscalc.html">THIS PRESENTATION :)</a>
+        </ul>
+    </div>
+
+    <div id="thanks" class="step" data-x="4000" data-y="2000" data-z="0" data-scale="3" data-rotate-y="0">
+        <h1 class="center">Special thanks to:<br/> Bas Venis</h1> 
+    </div>
+
+    <div id="" class="step" data-x="4000" data-y="3400" data-z="0" data-scale="3" data-rotate-y="0">
+        <h1 class="center">Thank you</h1> 
+    </div>
+
+    <div id="overview" class="step" data-x="3000" data-y="1500" data-scale="10">
+    </div>
+
+</div>
+
+<!--
+    
+    
+<div class="hint">
+    <p>Use a spacebar or arrow keys to navigate</p>
+</div>
+<script>
+if ("ontouchstart" in document.documentElement) { 
+    document.querySelector(".hint").innerHTML = "<p>Tap on the left or right to navigate</p>";
+}
+</script>
+
+-->
+<script src="js/impress.js"></script>
+<script>
+
+// Detect DOMReady
+if (window.addEventListener) {
+    window.addEventListener('DOMContentLoaded', documentLoaded, false);
+} else {
+    window.attachEvent('onload', documentLoaded);
+}
+// Create timeline and prepare toolbar when DOM is ready
+function documentLoaded(){
+    impress().init();
+    window.img = document.getElementById('trollface');
+    window.addEventListener('impress:stepenter', checkForImg, false);
+}
+
+function checkForImg(e){
+    var el = e.target,
+        id = el.getAttribute('id');
+   if(id && (id == 'bypassing-3' || id=='bypassing-2' || id=='bypassing-4')){
+       window.img.style.display = 'block';
+   } else {
+       window.img.style.display = 'none';
+   }      
+}
+
+</script>
+</body>
+</html>
+
